@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>springboot</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+</head>
+<body>
+
+<div id="main" style="width: 600px;height:400px;"></div>
+<script type="text/javascript">
+      // 基于准备好的dom，初始化echarts实例
+      var myChart = echarts.init(document.getElementById('main'));
+
+      // 指定图表的配置项和数据
+      option = {
+          xAxis: {
+            type: 'category',
+            data: []
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [
+            {
+              data: [],
+              type: 'line'
+            }
+          ]
+        };
+
+      // 使用刚指定的配置项和数据显示图表。
+      myChart.setOption(option);
+
+
+        var ws = new WebSocket("ws://localhost:8080/websocket");
+        ws.onopen = (session) => {
+            console.log(session)
+        }
+
+        ws.onmessage = (message) => {
+            let data = message.data
+            let metrics = JSON.parse(data)
+            metrics.forEach(metric => {
+                option.xAxis.data.push(metric.time)
+                option.series[0].data.push(metric.value)
+                myChart.setOption(option);
+            })
+        }
+
+    </script>
+</body>
+</html>

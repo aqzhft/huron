@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+huron:
+
+  router:
+    http:
+      enable: true
+
+  storage:
+    default:
+      enable: false
+    blocking:
+      enable: true
+    kafka:
+      enable: false
+      servers: 192.168.10.240:32264
+    rabbitmq:
+      enable: false
+      host: 192.168.10.240
+      port: 29423
+      user-name: admin
+      password: gem123456
