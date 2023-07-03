@@ -1,3 +1,3 @@
 # HURON
 
-HURON译作休伦湖，同事以此作为一个数据处理工程的项目名，但世事无常，故此借用以示纪念。
+The Chinese translation of huron is 休伦湖（Lake Huron）, My colleague took it as the name of a data processing project. But the world is unpredictable, So I borrowed it to commemorate.
