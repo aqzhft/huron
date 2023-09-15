@@ -38,7 +38,7 @@ public class HuronProperties {
     public static class Filter {
 
         /**
-         * 超时时间（毫秒）
+         * timeout (millisecond)
          */
         private Long timeout = 3 * 24 * 3600 * 1000L;
 

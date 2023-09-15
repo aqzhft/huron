@@ -15,11 +15,6 @@ import java.util.concurrent.Executors;
 @Configuration
 public class BasicConfig {
 
-    /**
-     * 线程池基础配置
-     *
-     * @return executor
-     */
     @Bean
     @ConditionalOnMissingBean
     public ExecutorService executorService() {

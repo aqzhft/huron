@@ -4,7 +4,7 @@ import cc.powind.huron.assemble.properties.HuronProperties;
 import cc.powind.huron.core.model.RealtimeMapper;
 import cc.powind.huron.core.model.Realtime;
 import cc.powind.huron.core.model.RealtimeRegister;
-import cc.powind.huron.core.model.RealtimeStorage;
+import cc.powind.huron.core.storage.RealtimeStorage;
 import cc.powind.huron.core.storage.*;
 import cc.powind.huron.core.utils.RealtimeDeserializer;
 import cc.powind.huron.core.utils.RealtimeKafkaTopic;

@@ -3,34 +3,31 @@ package cc.powind.huron.core.model;
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * 实时数据
- */
 public interface Realtime {
 
     /**
-     * 监控点位标识
+     * Object's unique id
      *
      * @return objectId
      */
     String getObjectId();
 
     /**
-     * 实时数据发生的时间
+     * Real-time create time
      *
      * @return time
      */
     Instant getTime();
 
     /**
-     * 实时数据的唯一标识
+     * The Real-time data unique id
      *
      * @return realtimeId
      */
     String getRealtimeId();
 
     /**
-     * 校验实时数据
+     * validate Real-time
      *
      * @return errText map
      */

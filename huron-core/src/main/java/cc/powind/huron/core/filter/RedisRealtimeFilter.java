@@ -6,18 +6,15 @@ import cc.powind.huron.core.model.RealtimeFilter;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-/**
- * 通过redis来实现实时数据的筛选
- */
 public class RedisRealtimeFilter implements RealtimeFilter {
 
     /**
-     * 过期的时长
+     * default expire timeout
      */
     private int timeout = 3 * 24 * 3600;
 
     /**
-     * redis的连接池
+     * redis connection pool
      */
     private JedisPool pool;
 

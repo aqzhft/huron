@@ -15,7 +15,6 @@ public class WebsocketServer {
     public void onOpen(Session session) {
         System.out.println("open: " + session);
 
-        // 将连接加入缓存
         sessionMap.put(session.getId(), session);
     }
 
@@ -23,7 +22,6 @@ public class WebsocketServer {
     public void onClose(Session session) {
         System.out.println("close: " + session);
 
-        // 将连接关闭
         sessionMap.remove(session.getId());
     }
 
@@ -31,14 +29,12 @@ public class WebsocketServer {
     public void onMessage(String message, Session session) {
         System.out.println("message: " + message + ", session: " + session.getId());
 
-        // 消息处理
     }
 
     @OnError
     public void onError(Session session, Throwable throwable) {
         System.out.println("session: " + session.getId() + ", throwable: " + throwable);
 
-        // 去除有问题的连接
         sessionMap.remove(session.getId());
     }
 

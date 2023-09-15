@@ -6,7 +6,7 @@ import cc.powind.huron.core.model.RealtimeException;
 public class RealtimeValidateException extends RealtimeException {
 
     /**
-     * 错误信息
+     * err message
      */
     private String[] errTexts;
 

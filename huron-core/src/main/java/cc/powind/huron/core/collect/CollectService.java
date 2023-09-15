@@ -1,24 +1,28 @@
 package cc.powind.huron.core.collect;
 
-import cc.powind.huron.core.model.Realtime;
+import cc.powind.huron.core.model.*;
 
-/**
- *
- * 数据收集服务
- *
- */
 public interface CollectService {
 
     /**
-     * 数据收集
+     * General data collection
      *
-     * 1、对数据的基本校验
+     * 1、Basic data format verification
+     * The specific verification logic is defined by a specific data model
      *
-     * 2、数据的筛选过滤
+     * 2、Data filtering {@link RealtimeFilter}
+     * The collected data is mixed (perhaps sent repeatedly) and needs further filtering
      *
-     * 3、数据的实时计算
+     * 3、Custom verification
+     * Further expansion for data verification
      *
-     * 4、数据的持久化
+     * 4、Real time calculation (A very important logic)
+     * Real-time data is a refection to real-world events, we need to extract metrics of different dimensions from it
+     * The metrics is abstracted into concrete classes {@link Metric}
+     * {@link MetricDetector}
+     *
+     * 5、Persistence {@link RealtimeMapper}
+     * Real-time data needs to be stored for a more in-depth summary analysis
      *
      * @param realtime realtime
      */

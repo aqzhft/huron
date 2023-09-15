@@ -1,30 +1,22 @@
 package cc.powind.huron.core.model;
 
-import cc.powind.huron.core.model.Realtime;
-
 import java.util.Collection;
 
 public interface RealtimeMapper {
 
-    /**
-     * 是否支持此实时数据的处理
-     *
-     * @param realtime 实时数据
-     * @return bool
-     */
     boolean isSupport(Realtime realtime);
 
     /**
-     * 单个的插入数据
+     * single insert
      *
-     * @param realtime 实时数据
+     * @param realtime Real-time
      */
     void insert(Realtime realtime);
 
     /**
-     * 批量的插入数据
+     * batch insert
      *
-     * @param realtimeList 实时数据的集合
+     * @param realtimeList Real-time collection
      */
     void insertBatch(Collection<Realtime> realtimeList);
 }

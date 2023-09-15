@@ -2,46 +2,17 @@ package cc.powind.huron.core.collect;
 
 import cc.powind.huron.core.exception.RealtimeExistException;
 import cc.powind.huron.core.exception.RealtimeValidateException;
-import cc.powind.huron.core.model.RealtimeMapper;
 import cc.powind.huron.core.model.*;
+import cc.powind.huron.core.storage.RealtimeStorage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-/**
- * 数据收集 默认实现
- *
- * 1、基本的数据校验
- * 数据的基本校验由detector进行，但是为了安全性，还是需要再加一层校验
- *
- * 2、数据过滤
- * 需要过滤掉重复数据，并实时计算重复率
- * 接口实现{@link RealtimeFilter}
- *
- * 3、自定义校验
- * 增加一个数据自定义校验的扩展点
- *
- * 4、实时计算
- * 通过实时计算，将实时数据中的metric{@link Metric}提取出来
- * 具体实现接口{@link MetricDetector}
- *
- * 5、指标处理
- * - 第一个可以用于实时判断，例如判断是否超过系统设置的阈值
- * - 指标是否需要持久化
- *
- * 6、实时数据持久化
- * 持久化接口{@link RealtimeMapper}
- *
- * 数据重复率的统计
- *
- *
- */
 public class CollectServiceImpl implements CollectService {
 
     protected final Log log = LogFactory.getLog(getClass());
@@ -109,9 +80,7 @@ public class CollectServiceImpl implements CollectService {
 
             customValidate(realtime);
 
-            Collection<Metric> metrics = compute(realtime);
-
-            metricHandle(metrics);
+            compute(realtime);
 
             store(realtime);
 
@@ -146,12 +115,6 @@ public class CollectServiceImpl implements CollectService {
         }
     }
 
-    /**
-     * 对实时数据基本格式的校验
-     *
-     * @param realtime 实时数据
-     * @throws RealtimeValidateException 实时数据校验错误
-     */
     protected void validate(Realtime realtime) throws RealtimeException {
 
         if (realtime == null) {
@@ -175,11 +138,6 @@ public class CollectServiceImpl implements CollectService {
         }
     }
 
-    /**
-     * 实时数据的自定义校验
-     *
-     * @param realtime 实时数据
-     */
     protected void customValidate(Realtime realtime) {
 
         if (customValidators == null || customValidators.isEmpty()) {
@@ -193,30 +151,27 @@ public class CollectServiceImpl implements CollectService {
         }
     }
 
-    /**
-     * 实时计算
-     *
-     * @param realtime 实时数据
-     * @return metric集合
-     */
-    protected Collection<Metric> compute(Realtime realtime) {
+    protected void compute(Realtime realtime) {
 
         if (detectors == null || detectors.isEmpty()) {
-            return Collections.emptyList();
+            return;
         }
 
+        // detect metrics from realtime
+        Collection<Metric> metrics = detect(realtime);
+
+        // custom processing logic
+        metricHandle(metrics);
+    }
+
+    protected Collection<Metric> detect(Realtime realtime) {
         return detectors.stream().filter(detector -> detector.isSupport(realtime))
                 .map(detector -> detector.detect(realtime))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 指标处理
-     *
-     * @param metrics 指标集合
-     */
-    public void metricHandle(Collection<Metric> metrics) {
+    protected void metricHandle(Collection<Metric> metrics) {
 
         if (metricHandlers == null || metricHandlers.isEmpty()) {
             return;
@@ -231,11 +186,6 @@ public class CollectServiceImpl implements CollectService {
         }
     }
 
-    /**
-     * 实时数据的存储
-     *
-     * @param realtime 实时数据
-     */
     public void store(Realtime realtime) {
 
         if (storages == null || storages.isEmpty()) {

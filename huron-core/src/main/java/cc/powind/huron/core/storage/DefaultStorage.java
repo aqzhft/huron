@@ -5,9 +5,6 @@ import cc.powind.huron.core.model.Realtime;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * 实时数据存储的默认实现
- */
 public class DefaultStorage extends AbstractStorage {
 
     @Override

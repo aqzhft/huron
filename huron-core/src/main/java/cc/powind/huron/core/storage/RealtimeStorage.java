@@ -1,9 +1,11 @@
-package cc.powind.huron.core.model;
+package cc.powind.huron.core.storage;
+
+import cc.powind.huron.core.model.Realtime;
 
 public interface RealtimeStorage {
 
     /**
-     * 持久化实时数据
+     * Persistence real-time data
      *
      * @param realtime realtime
      */
