@@ -16,12 +16,6 @@ public class RealtimeFilterConfiguration {
     @Autowired
     private HuronProperties properties;
 
-    /**
-     * 1、redis连接池需要有
-     * 2、配置文件中开启了此filter
-     *
-     * @return filter
-     */
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = "huron.filter", name = "redis-realtime-filter", havingValue = "true")

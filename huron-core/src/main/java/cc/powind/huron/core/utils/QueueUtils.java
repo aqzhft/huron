@@ -1,7 +1,5 @@
 package cc.powind.huron.core.utils;
 
-import cc.powind.huron.core.model.Realtime;
-
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -9,14 +7,7 @@ import java.util.concurrent.TimeUnit;
 public class QueueUtils {
 
     /**
-     * 批量拉取数据（抄的guava）
-     *
-     *
-     * @param queue       队列
-     * @param numElements 拉取的最少的量
-     * @param maxElements 拉取的最多的量
-     * @param timeout     超时时间（毫秒）
-     * @return 拉取出的数量
+     * copy from guava
      */
     public static <T> int drainTo(Collection<T> buffer, BlockingQueue<T> queue, int numElements, int maxElements, long timeout) {
 
@@ -28,20 +19,20 @@ public class QueueUtils {
         try {
             while (added < numElements) {
 
-                // 尝试一次性取出最大的数量
+                // Attempt to retrieve the maximum quantity at once
                 added += queue.drainTo(buffer, maxElements - added);
 
-                // 如果拉出的数量还达不到最少的量numElements，则需要等待
+                // If the number of pulled out elements does not reach the minimum numElements, need to wait
                 if (added < numElements) {
 
                     T realtime;
                     while (true) {
                         try {
 
-                            // 在剩余的时间里尝试从queue里拉数据
+                            // Attempt to pull data from queue for the remaining time
                             realtime = queue.poll(deadline - System.nanoTime(), TimeUnit.NANOSECONDS);
 
-                            // 这个无限循环的作用就是等待新的数据，如果有新数据或者时间到期，就跳出循环
+                            // The function of this infinite loop is to wait for new data, and if there is new data or the time expires, it will jump out of the loop
                             break;
                         } catch (InterruptedException e) {
                             interrupted = true;
@@ -50,7 +41,7 @@ public class QueueUtils {
 
                     if (realtime == null) {
 
-                        // 这里说明到了预期的时间点依然没有取到数据，则直接将循环停掉
+                        // This indicates that if no data is retrieved at the expected time point, the loop will be stopped directly
                         break;
                     }
 

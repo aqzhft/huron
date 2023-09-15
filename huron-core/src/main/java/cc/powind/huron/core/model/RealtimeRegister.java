@@ -3,34 +3,34 @@ package cc.powind.huron.core.model;
 public interface RealtimeRegister {
 
     /**
-     * 注册一个实时数据
-     * 别名和类是一对一的关系
+     * Register a real-time type
+     * alias and clazz is one-for-one
      *
-     * @param alias 别名
-     * @param clazz 类
+     * @param alias alias
+     * @param clazz clazz
      */
     void register(String alias, Class<? extends Realtime> clazz);
 
     /**
-     * 根据类获取别名
+     * get alias name by clazz
      *
-     * @param clazz 类
-     * @return 别名
+     * @param clazz clazz
+     * @return alias
      */
     String getAlias(Class<? extends Realtime> clazz);
 
     /**
-     * 根据别名获取类
+     * get clazz by alias name
      *
-     * @param alias 别名
-     * @return 类
+     * @param alias alias
+     * @return clazz
      */
     Class<? extends Realtime> getClazz(String alias);
 
     /**
-     * 查询所有的别名
+     * get all alias names
      *
-     * @return 别名
+     * @return alias
      */
     String[] getAlias();
 }

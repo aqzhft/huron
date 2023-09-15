@@ -3,28 +3,22 @@ package cc.powind.huron.assemble.properties;
 public class StorageProperties {
 
     /**
-     * 拉取数据最大等待时间
+     * Maximum waiting time for pulling data
      */
     private Long maxFetchWait = 3000L;
 
     /**
-     * 一次性拉取最少的量
+     * Minimum amount of data pulled at once
      */
     private Integer minFetchSize = 1000;
 
     /**
-     * 一次性拉取最大的量
+     * Maximum amount of data pulled at once
      */
     private Integer maxFetchSize = 10000;
 
-    /**
-     * kafka的配置
-     */
     private Kafka kafka = new Kafka();
 
-    /**
-     * rabbitmq的配置
-     */
     private Rabbitmq rabbitmq = new Rabbitmq();
 
     public Long getMaxFetchWait() {
@@ -70,32 +64,23 @@ public class StorageProperties {
     public static class Kafka {
 
         /**
-         * kafka服务地址
+         * kafka server uri
          */
         private String servers;
 
-        /**
-         * 回执
-         */
         private String acks = "0";
 
-        /**
-         * 消费组ID
-         */
         private String groupId = "storage.groupId";
 
-        /**
-         * 消费点
-         */
         private String autoOffsetReset = "earliest";
 
         /**
-         * 一次性拉取最少的量（默认1M）
+         * default 1M
          */
         private int fetchMinSize = 1048576;
 
         /**
-         * 一次性拉取最大的量（默认10M）
+         * default 10M
          */
         private int fetchMaxSize = 10485760;
 

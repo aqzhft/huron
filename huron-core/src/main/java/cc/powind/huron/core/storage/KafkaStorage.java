@@ -21,42 +21,42 @@ import java.util.stream.Collectors;
 public class KafkaStorage extends AbstractStorage {
 
     /**
-     * 拉取数据最大等待时间
+     * Maximum waiting time for pulling data
      */
     private long maxFetchWait = 3000L;
 
     /**
-     * 分区数
+     * Partition number
      */
     private int numPartition = 2;
 
     /**
-     * 副本数
+     * Replication number
      */
     private short replicationFactor = 0;
 
     /**
-     * kafka创建工具
+     * Kafka admin client
      */
     private AdminClient adminClient;
 
     /**
-     * 消息生产者
+     * Message producer
      */
     private Producer<String, Realtime> producer;
 
     /**
-     * 消息消费者
+     * Message consumer
      */
     private Consumer<String, Realtime> consumer;
 
     /**
-     * 多线程执行
+     * Thread pool
      */
     private ExecutorService executorService;
 
     /**
-     * 注册器
+     * Real-time topic
      */
     private RealtimeKafkaTopic kafkaTopic;
 
@@ -132,9 +132,6 @@ public class KafkaStorage extends AbstractStorage {
         this.initKafka();
     }
 
-    /**
-     * 定制async方法
-     */
     private void initAsync() {
 
         this.setAsync(new Async() {
@@ -205,9 +202,6 @@ public class KafkaStorage extends AbstractStorage {
         consumer.subscribe(Arrays.asList(topics));
     }
 
-    /**
-     * 需要起一个消费进程实时拉取queue中的数据做后步处理
-     */
     private void initConsumeThread() {
 
         executorService.submit(() -> {

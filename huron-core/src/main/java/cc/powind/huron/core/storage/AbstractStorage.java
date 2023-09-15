@@ -1,8 +1,7 @@
 package cc.powind.huron.core.storage;
 
-import cc.powind.huron.core.model.RealtimeMapper;
 import cc.powind.huron.core.model.Realtime;
-import cc.powind.huron.core.model.RealtimeStorage;
+import cc.powind.huron.core.model.RealtimeMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,9 +40,9 @@ public abstract class AbstractStorage implements RealtimeStorage {
     }
 
     /**
-     * 存储操作
+     * The real storage operations
      *
-     * @param realtimeList 实时数据
+     * @param realtimeList Real-time collection
      */
     protected void doStore(List<Realtime> realtimeList) {
 
@@ -51,7 +50,7 @@ public abstract class AbstractStorage implements RealtimeStorage {
             return;
         }
 
-        // 依据mapper进行分组
+        // Grouping based on mapper
         Map<RealtimeMapper, List<Realtime>> listMap = groupRealtimeData(realtimeList);
 
         for (RealtimeMapper mapper : listMap.keySet()) {
@@ -60,10 +59,10 @@ public abstract class AbstractStorage implements RealtimeStorage {
     }
 
     /**
-     * 将实时数据根据mapper进行分组
+     * Grouping based on mapper
      *
-     * @param realtimeList 实时数据
-     * @return 分组
+     * @param realtimeList Real-time collection
+     * @return Real-time group
      */
     private Map<RealtimeMapper, List<Realtime>> groupRealtimeData(List<Realtime> realtimeList) {
 
@@ -81,10 +80,10 @@ public abstract class AbstractStorage implements RealtimeStorage {
     }
 
     /**
-     * 真正的存储操作
+     * The real storage operations
      *
-     * @param mapper 持久化类
-     * @param realtimeList 实时数据
+     * @param mapper Persistence mapper
+     * @param realtimeList Real-time collection
      */
     protected void doStore(RealtimeMapper mapper, List<Realtime> realtimeList) {
 

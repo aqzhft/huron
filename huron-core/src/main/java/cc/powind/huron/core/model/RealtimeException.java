@@ -2,7 +2,7 @@ package cc.powind.huron.core.model;
 
 /**
  *
- * 实时数据异常
+ * Real-time exception base class
  *
  */
 public class RealtimeException extends Exception {

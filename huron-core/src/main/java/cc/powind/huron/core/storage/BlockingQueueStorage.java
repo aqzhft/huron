@@ -4,7 +4,6 @@ import cc.powind.huron.core.model.Realtime;
 import cc.powind.huron.core.utils.QueueUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -13,29 +12,14 @@ import java.util.concurrent.TimeUnit;
 
 public class BlockingQueueStorage extends AbstractStorage {
 
-    /**
-     * 实时数据的存储容器
-     */
     private BlockingQueue<Realtime> queue = new ArrayBlockingQueue<>(2 << 16);
 
-    /**
-     * 拉取数据最大等待时间
-     */
     private long maxFetchWait = 3000L;
 
-    /**
-     * 拉取数据最少拉取的数量
-     */
     private int minFetchSize = 1000;
 
-    /**
-     * 拉取数据最多拉取的数量
-     */
     private int maxFetchSize = 10000;
 
-    /**
-     * 线程处理
-     */
     private ExecutorService executorService;
 
     public BlockingQueue<Realtime> getQueue() {
@@ -86,9 +70,6 @@ public class BlockingQueueStorage extends AbstractStorage {
         this.initConsumeThread();
     }
 
-    /**
-     * 需要起一个消费进程实时拉取queue中的数据做后步处理
-     */
     protected void initConsumeThread() {
 
         List<Realtime> collect = new ArrayList<>();

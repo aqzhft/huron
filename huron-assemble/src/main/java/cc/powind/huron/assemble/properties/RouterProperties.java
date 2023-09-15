@@ -14,9 +14,6 @@ public class RouterProperties {
 
     public static class Http {
 
-        /**
-         * URI 地址
-         */
         private String urlPattern = "/realtime";
 
         public String getUrlPattern() {

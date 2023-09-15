@@ -28,11 +28,10 @@ public class ThresholdValidateHandler implements MetricHandler {
 
         List<ThresholdPolicy> thresholdPolicyList = thresholdPolicyService.load(metric.getMetricId());
 
-        // todo 分组排序
+        // todo group sort
 
         for (ThresholdPolicy policy : thresholdPolicyList) {
             if (policy.getThreshold().compareTo(metric.getValue()) < 0) {
-                // 抛出异常信息
                 collectService.collect(createAbnormal(policy, metric));
             }
         }

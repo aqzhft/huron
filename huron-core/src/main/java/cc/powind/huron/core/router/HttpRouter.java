@@ -4,7 +4,6 @@ import cc.powind.huron.core.exception.RouteNotMatchException;
 import cc.powind.huron.core.model.Realtime;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -16,9 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 实时数据接收对外开放的路由（HTTP协议）
- */
 public class HttpRouter extends AbstractRouter implements Servlet {
 
     private static final String HTTP_ALIAS_PARAMETER_NAME = "aliasName";
@@ -58,16 +54,16 @@ public class HttpRouter extends AbstractRouter implements Servlet {
             return;
         }
 
-        // 判断是不是批量
+        // check if batch save
         boolean isBatch = checkIfBatch(request);
 
-        // 判断是哪一种realTime
+        // check the clazz
         Class<? extends Realtime> clazz = getRealtimeClazz(request);
         if (clazz == null) {
             throw new RouteNotMatchException();
         }
 
-        // 获取请求体
+        // get the request body
         String jsonText = read(request.getInputStream());
         if ("".equals(jsonText)) {
             throw new IllegalArgumentException("request body is null");
@@ -77,13 +73,11 @@ public class HttpRouter extends AbstractRouter implements Servlet {
 
             List<Realtime> realtimeList = mapper.readValue(jsonText, mapper.getTypeFactory().constructCollectionType(List.class, clazz));
 
-            // 数据采集
             realtimeList.forEach(this::collect);
         } else {
 
             Realtime realtime = mapper.readValue(jsonText, clazz);
 
-            // 数据采集
             collect(realtime);
         }
     }
@@ -113,25 +107,12 @@ public class HttpRouter extends AbstractRouter implements Servlet {
         genericServlet.destroy();
     }
 
-    /**
-     * 判断是否是批量推送的数据
-     *
-     * @param request HttpServletRequest
-     * @return bool
-     */
     private boolean checkIfBatch(HttpServletRequest request) {
         Map<String, String[]> parameterMap = request.getParameterMap();
         String[] parameterValue = parameterMap.get(HTTP_BATCH_CHECK_PARAMETER_NAME);
         return ArrayUtils.isNotEmpty(parameterValue) && ("1".equals(parameterValue[0]) || "true".equals(parameterValue[0]));
     }
 
-    /**
-     * 获取实时数据的类
-     * request中的参数来判断
-     *
-     * @param request HttpServletRequest
-     * @return clazz
-     */
     private Class<? extends Realtime> getRealtimeClazz(HttpServletRequest request) {
 
         Map<String, String[]> parameterMap = request.getParameterMap();
