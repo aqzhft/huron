@@ -1,32 +1,32 @@
 package cc.powind.huron.basic.config;
 
+import cc.powind.huron.assemble.config.EnableHuronCollector;
+import cc.powind.huron.assemble.properties.HuronProperties;
 import cc.powind.huron.core.model.*;
-import cc.powind.huron.view.WebsocketConfig;
-import cc.powind.huron.view.WebsocketServer;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import cc.powind.huron.rectifier.BlockingQueueRectifier;
+import cc.powind.huron.rectifier.TopicMappings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 @Configuration
-@Import(WebsocketConfig.class)
+@EnableHuronCollector
+@EnableConfigurationProperties(HuronProperties.class)
 public class MyConfig {
 
     private final Log log = LogFactory.getLog(getClass());
 
     @Autowired
     private RealtimeRegister realtimeRegister;
-
-    @Autowired
-    private WebsocketServer websocketServer;
 
     @Autowired
     private ObjectMapper mapper;
@@ -42,14 +42,10 @@ public class MyConfig {
     @Bean
     public RealtimeMapper realtimeMapper() {
         return new RealtimeMapper() {
+
             @Override
             public boolean isSupport(Realtime realtime) {
                 return true;
-            }
-
-            @Override
-            public void insert(Realtime realtime) {
-                log.info("insert one realtime");
             }
 
             @Override
@@ -112,11 +108,17 @@ public class MyConfig {
         return new MetricHandlerImpl();
     }
 
-    public class MetricHandlerImpl extends BlockingQueueAsync<Metric> implements MetricHandler {
+    public class MetricHandlerImpl extends BlockingQueueRectifier<Metric> implements MetricHandler {
+
+        public MetricHandlerImpl() {
+            super.outflow((list) -> {
+                System.out.println("config metric handler: callback");
+            });
+        }
 
         @Override
         public void handle(Metric metric) {
-            super.submit(metric);
+            super.inflow(metric);
         }
 
         @Override
@@ -124,13 +126,38 @@ public class MyConfig {
             return BaseMetric.class.equals(metric.getClass());
         }
 
-        @Override
-        public void exec(Collection<Metric> list) {
-            try {
-                websocketServer.send(mapper.writeValueAsString(list));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
+        // send to websocket
     }
+
+    @Bean
+    public TopicMappings<Realtime> topicMappings() {
+
+        Map<String, Class<? extends Realtime>> mappings = realtimeRegister.getMappings();
+
+        return new TopicMappings<Realtime>() {
+
+            @Override
+            public String[] topics() {
+                return mappings.keySet().stream().map(alias -> "storage_" + alias).toArray(String[]::new);
+            }
+
+            @Override
+            public String topic(Realtime realtime) {
+
+                for (String alias : mappings.keySet()) {
+                    if (realtime.getClass().equals(mappings.get(alias))) {
+                        return "storage_" + alias;
+                    }
+                }
+
+                return null;
+            }
+
+            @Override
+            public Class clazz(String topic) {
+                return mappings.get(topic.replaceFirst("storage_", ""));
+            }
+        };
+    }
+
 }

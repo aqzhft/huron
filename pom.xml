@@ -12,7 +12,8 @@
         <module>huron-core</module>
         <module>huron-basic</module>
         <module>huron-assemble</module>
-        <module>huron-view</module>
+        <module>huron-extractor</module>
+        <module>huron-rectifier</module>
     </modules>
 
     <parent>
@@ -29,10 +30,12 @@
         <jackson.version.databind>2.13.1</jackson.version.databind>
         <rabbit-amqp-client.version>5.13.1</rabbit-amqp-client.version>
         <rocketmq-client.version>4.9.4</rocketmq-client.version>
+        <mqttv3.version>1.2.2</mqttv3.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+
             <dependency>
                 <groupId>cc.powind</groupId>
                 <artifactId>huron-core</artifactId>
@@ -48,6 +51,17 @@
                 <artifactId>huron-view</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>cc.powind</groupId>
+                <artifactId>huron-extractor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cc.powind</groupId>
+                <artifactId>huron-rectifier</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
@@ -82,6 +96,11 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version.databind}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.paho</groupId>
+                <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+                <version>${mqttv3.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

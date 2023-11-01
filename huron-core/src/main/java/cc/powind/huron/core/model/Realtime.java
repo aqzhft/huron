@@ -1,7 +1,6 @@
 package cc.powind.huron.core.model;
 
 import java.time.Instant;
-import java.util.Map;
 
 public interface Realtime {
 
@@ -25,11 +24,4 @@ public interface Realtime {
      * @return realtimeId
      */
     String getRealtimeId();
-
-    /**
-     * validate Real-time
-     *
-     * @return errText map
-     */
-    Map<String, String> validate();
 }

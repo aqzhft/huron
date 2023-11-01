@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
-import requests
 import psutil
+import requests
 import time
+
 
 def send(equipmentId, indicatorId, total, used):
     header={"Content-Type": "application/json;charset=utf8"}

@@ -11,19 +11,19 @@ public class RedisRealtimeFilter implements RealtimeFilter {
     /**
      * default expire timeout
      */
-    private int timeout = 3 * 24 * 3600;
+    private long ttl = 3 * 24 * 3600;
 
     /**
      * redis connection pool
      */
     private JedisPool pool;
 
-    public int getTimeout() {
-        return timeout;
+    public long getTtl() {
+        return ttl;
     }
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
+    public void setTtl(long ttl) {
+        this.ttl = ttl;
     }
 
     public JedisPool getPool() {
@@ -37,7 +37,7 @@ public class RedisRealtimeFilter implements RealtimeFilter {
     @Override
     public void exist(Realtime realtime) throws RealtimeExistException {
         try (Jedis jedis = pool.getResource()) {
-            String set = jedis.set(realtime.getRealtimeId(), realtime.getRealtimeId(), "NX", "EX", timeout);
+            String set = jedis.set(realtime.getRealtimeId(), realtime.getRealtimeId(), "NX", "EX", ttl);
             if (set == null) {
                 throw new RealtimeExistException(realtime);
             }
