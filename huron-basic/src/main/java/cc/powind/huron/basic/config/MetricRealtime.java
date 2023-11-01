@@ -3,8 +3,6 @@ package cc.powind.huron.basic.config;
 import cc.powind.huron.core.model.Realtime;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MetricRealtime implements Realtime {
 
@@ -47,26 +45,6 @@ public class MetricRealtime implements Realtime {
     @Override
     public String getRealtimeId() {
         return metricId + "_" + time.toEpochMilli();
-    }
-
-    @Override
-    public Map<String, String> validate() {
-
-        Map<String, String> errText = new HashMap<>();
-
-        if (metricId == null) {
-            errText.put("metricId", "metricId is need");
-        }
-
-        if (time == null) {
-            errText.put("time", "time is need");
-        }
-
-        if (value == null) {
-            errText.put("value", "value must not empty");
-        }
-
-        return errText;
     }
 
     @Override

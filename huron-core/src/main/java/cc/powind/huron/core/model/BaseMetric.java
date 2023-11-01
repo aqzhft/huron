@@ -47,4 +47,14 @@ public class BaseMetric implements Metric {
     public void setSource(Realtime source) {
         this.source = source;
     }
+
+    @Override
+    public String toString() {
+        return "BaseMetric{" +
+                "metricId='" + metricId + '\'' +
+                ", time=" + time +
+                ", value=" + value +
+                ", source=" + source +
+                '}';
+    }
 }

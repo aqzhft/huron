@@ -5,17 +5,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "huron")
 public class HuronProperties {
 
-    private Filter filter = new Filter();
+    private FilterProperties filter = new FilterProperties();
 
     private RouterProperties router = new RouterProperties();
 
     private StorageProperties storage = new StorageProperties();
 
-    public Filter getFilter() {
+    public FilterProperties getFilter() {
         return filter;
     }
 
-    public void setFilter(Filter filter) {
+    public void setFilter(FilterProperties filter) {
         this.filter = filter;
     }
 
@@ -33,21 +33,5 @@ public class HuronProperties {
 
     public void setStorage(StorageProperties storage) {
         this.storage = storage;
-    }
-
-    public static class Filter {
-
-        /**
-         * timeout (millisecond)
-         */
-        private Long timeout = 3 * 24 * 3600 * 1000L;
-
-        public Long getTimeout() {
-            return timeout;
-        }
-
-        public void setTimeout(Long timeout) {
-            this.timeout = timeout;
-        }
     }
 }

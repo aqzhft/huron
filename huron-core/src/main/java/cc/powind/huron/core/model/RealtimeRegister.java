@@ -1,5 +1,7 @@
 package cc.powind.huron.core.model;
 
+import java.util.Map;
+
 public interface RealtimeRegister {
 
     /**
@@ -33,4 +35,6 @@ public interface RealtimeRegister {
      * @return alias
      */
     String[] getAlias();
+
+    Map<String, Class<? extends Realtime>> getMappings();
 }

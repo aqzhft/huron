@@ -10,7 +10,9 @@ public interface ThresholdPolicy {
 
     Double getThreshold();
 
-    int getOrder();
+    Integer getOrder();
 
     String getType();
+
+    Boolean proceed();
 }

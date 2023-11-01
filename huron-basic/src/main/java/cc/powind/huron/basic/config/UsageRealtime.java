@@ -1,11 +1,8 @@
 package cc.powind.huron.basic.config;
 
 import cc.powind.huron.core.model.Realtime;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 
 public class UsageRealtime implements Realtime {
 
@@ -68,33 +65,5 @@ public class UsageRealtime implements Realtime {
 
     public void setTime(Instant time) {
         this.time = time;
-    }
-
-    @Override
-    public Map<String, String> validate() {
-
-        Map<String, String> error = new HashMap<>();
-
-        if (StringUtils.isBlank(equipmentId)) {
-            error.put("equipmentId", "equipment must not null");
-        }
-
-        if (StringUtils.isBlank(indicatorId)) {
-            error.put("indicatorId", "indicatorId must not null");
-        }
-
-        if (total == null) {
-            error.put("total", "total must not null");
-        }
-
-        if (used == null) {
-            error.put("used", "used must not null");
-        }
-
-        if (time == null) {
-            error.put("time", "time must not null");
-        }
-
-        return error;
     }
 }

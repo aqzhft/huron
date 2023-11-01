@@ -9,7 +9,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -21,7 +20,7 @@ public class CollectServiceImpl implements CollectService {
 
     private List<RealtimeFilter> filters;
 
-    private List<RealtimeCustomValidator> customValidators;
+    private List<RealtimeValidator> validators;
 
     private List<MetricDetector> detectors;
 
@@ -37,12 +36,12 @@ public class CollectServiceImpl implements CollectService {
         this.filters = filters;
     }
 
-    public List<RealtimeCustomValidator> getCustomValidators() {
-        return customValidators;
+    public List<RealtimeValidator> getValidators() {
+        return validators;
     }
 
-    public void setCustomValidators(List<RealtimeCustomValidator> customValidators) {
-        this.customValidators = customValidators;
+    public void setValidators(List<RealtimeValidator> validators) {
+        this.validators = validators;
     }
 
     public List<MetricDetector> getDetectors() {
@@ -77,8 +76,6 @@ public class CollectServiceImpl implements CollectService {
             validate(realtime);
 
             filter(realtime);
-
-            customValidate(realtime);
 
             compute(realtime);
 
@@ -115,15 +112,16 @@ public class CollectServiceImpl implements CollectService {
         }
     }
 
-    protected void validate(Realtime realtime) throws RealtimeException {
+    protected void validate(Realtime realtime) throws RealtimeValidateException {
 
-        if (realtime == null) {
-            throw new RealtimeValidateException(null, "realtime is null");
+        if (validators == null || validators.isEmpty()) {
+            return;
         }
 
-        Map<String, String> errMap = realtime.validate();
-        if (errMap != null && !errMap.isEmpty()) {
-            throw new RealtimeValidateException(realtime, errMap.values().toArray(new String[0]));
+        for (RealtimeValidator validator : validators) {
+            if (validator.isSupport(realtime)) {
+                validator.validate(realtime);
+            }
         }
     }
 
@@ -135,19 +133,6 @@ public class CollectServiceImpl implements CollectService {
 
         for (RealtimeFilter filter : filters) {
             filter.exist(realtime);
-        }
-    }
-
-    protected void customValidate(Realtime realtime) {
-
-        if (customValidators == null || customValidators.isEmpty()) {
-            return;
-        }
-
-        for (RealtimeCustomValidator validator : customValidators) {
-            if (validator.isSupport(realtime)) {
-                validator.validate(realtime);
-            }
         }
     }
 

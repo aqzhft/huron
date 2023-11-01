@@ -19,7 +19,7 @@ public class StorageProperties {
 
     private Kafka kafka = new Kafka();
 
-    private Rabbitmq rabbitmq = new Rabbitmq();
+    private Rabbit rabbit = new Rabbit();
 
     public Long getMaxFetchWait() {
         return maxFetchWait;
@@ -53,12 +53,12 @@ public class StorageProperties {
         this.kafka = kafka;
     }
 
-    public Rabbitmq getRabbitmq() {
-        return rabbitmq;
+    public Rabbit getRabbit() {
+        return rabbit;
     }
 
-    public void setRabbitmq(Rabbitmq rabbitmq) {
-        this.rabbitmq = rabbitmq;
+    public void setRabbit(Rabbit rabbit) {
+        this.rabbit = rabbit;
     }
 
     public static class Kafka {
@@ -133,7 +133,7 @@ public class StorageProperties {
         }
     }
 
-    public static class Rabbitmq {
+    public static class Rabbit {
 
         private String host;
 

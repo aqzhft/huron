@@ -1,7 +1,6 @@
 package cc.powind.huron.core.model;
 
 import java.time.Instant;
-import java.util.Map;
 
 public abstract class AbstractAbnormal implements Abnormal {
 
@@ -38,10 +37,5 @@ public abstract class AbstractAbnormal implements Abnormal {
 
     public void setTime(Instant time) {
         this.time = time;
-    }
-
-    @Override
-    public Map<String, String> validate() {
-        return null;
     }
 }

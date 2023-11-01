@@ -7,7 +7,7 @@ public interface RealtimeStorage {
     /**
      * Persistence real-time data
      *
-     * @param realtime realtime
+     * @param realtime Real-time
      */
     void store(Realtime realtime);
 }
