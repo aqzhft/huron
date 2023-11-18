@@ -3,6 +3,8 @@ package cc.powind.huron.assemble.config;
 import cc.powind.huron.assemble.properties.HuronProperties;
 import cc.powind.huron.core.model.Realtime;
 import cc.powind.huron.core.model.RealtimeMapper;
+import cc.powind.huron.core.model.RealtimeRegister;
+import cc.powind.huron.core.model.RealtimeTopicMappings;
 import cc.powind.huron.core.storage.DefaultRealtimeStorage;
 import cc.powind.huron.core.storage.RealtimeStorage;
 import cc.powind.huron.rectifier.*;
@@ -33,14 +35,13 @@ public class RealtimeStorageConfiguration {
 
     private final Log log = LogFactory.getLog(getClass());
 
+    private final static String DEFAULT_TOPIC_PREFIX = "storage_";
+
     @Autowired
     private HuronProperties properties;
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private TopicMappings<Realtime> topicMappings;
 
     @Autowired
     private List<RealtimeMapper> mappers;
@@ -74,7 +75,7 @@ public class RealtimeStorageConfiguration {
     public class KafkaRectifierConfiguration {
 
         @Bean(name = "storageRectifier", initMethod = "init")
-        public Rectifier<Realtime> kafkaRectifier() {
+        public Rectifier<Realtime> kafkaRectifier(@Autowired @Qualifier("storageTopicMappings") TopicMappings<Realtime> topicMappings) {
 
             KafkaRectifier<Realtime> rectifier = new KafkaRectifier<>();
             rectifier.setName("storage");
@@ -125,7 +126,7 @@ public class RealtimeStorageConfiguration {
     public class RabbitRectifierConfiguration {
 
         @Bean(name = "storageRectifier", initMethod = "init")
-        public Rectifier<Realtime> rabbitRectifier() {
+        public Rectifier<Realtime> rabbitRectifier(@Autowired @Qualifier("storageTopicMappings") TopicMappings<Realtime> topicMappings) {
 
             RabbitRectifier<Realtime> rectifier = new RabbitRectifier<>();
             rectifier.setName("storage");
@@ -156,5 +157,11 @@ public class RealtimeStorageConfiguration {
         log.info(" ===========> default storage rectifier <=========== ");
 
         return new DefaultRectifier<>("storage");
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(name = "storageTopicMappings")
+    public TopicMappings<Realtime> storageTopicMappings(RealtimeRegister realtimeRegister) {
+        return new RealtimeTopicMappings(realtimeRegister, DEFAULT_TOPIC_PREFIX);
     }
 }

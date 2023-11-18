@@ -42,15 +42,18 @@ public class ThresholdAbnormal extends AbstractAbnormal {
 
     @Override
     public String getObjectId() {
-        return null;
+        return policy == null ? null : policy.getPolicyId();
     }
 
     @Override
     public String getRealtimeId() {
+        if (policy != null && metric != null) {
+            return policy.getPolicyId() + "_" + metric.getTime().toEpochMilli();
+        }
         return null;
     }
 
     protected static String createDefaultMessage(Metric metric, ThresholdPolicy policy) {
-        return "policy [" + policy.getPolicyId() + "] [] is triggered, metric id is ";
+        return "policy [" + policy.getPolicyId() + "] [" + policy.getPolicyName() + "] is triggered, metric id is [" + metric.getMetricId() + "], current value: " + metric.getValue() + ", threshold: " + policy.getThreshold();
     }
 }

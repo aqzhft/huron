@@ -14,5 +14,7 @@ public interface ThresholdPolicy {
 
     String getType();
 
-    Boolean proceed();
+    Boolean getProceed();
+
+    Integer getCompare();
 }
