@@ -10,7 +10,7 @@ huron:
       port: ${FILTER_REDIS_PORT:6379}
 
   storage:
-    rectifier: ${STORAGE_RECTIFIER:rabbit}
+    rectifier: ${STORAGE_RECTIFIER:memory}
     kafka:
       servers: ${STORAGE_KAFKA_SERVERS:localhost:9092}
     rabbit:
@@ -18,3 +18,10 @@ huron:
       port: ${STORAGE_RABBIT_PORT:5672}
       user-name: ${STORAGE_RABBIT_USERNAME:admin}
       password: ${STORAGE_RABBIT_PASSWORD:admin}
+
+  clickhouse:
+    host: localhost
+    port: 8123
+    database: huron
+    username: root
+    password: admin

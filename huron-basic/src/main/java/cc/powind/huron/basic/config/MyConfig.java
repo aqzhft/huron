@@ -1,10 +1,8 @@
 package cc.powind.huron.basic.config;
 
-import cc.powind.huron.assemble.config.EnableHuronCollector;
 import cc.powind.huron.assemble.properties.HuronProperties;
 import cc.powind.huron.core.model.*;
 import cc.powind.huron.rectifier.BlockingQueueRectifier;
-import cc.powind.huron.rectifier.TopicMappings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,31 +11,17 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 @Configuration
-@EnableHuronCollector
 @EnableConfigurationProperties(HuronProperties.class)
 public class MyConfig {
 
     private final Log log = LogFactory.getLog(getClass());
 
     @Autowired
-    private RealtimeRegister realtimeRegister;
-
-    @Autowired
     private ObjectMapper mapper;
-
-    @PostConstruct
-    public void initRegister() {
-
-        realtimeRegister.register("metric", MetricRealtime.class);
-
-        realtimeRegister.register("usage", UsageRealtime.class);
-    }
 
     @Bean
     public RealtimeMapper realtimeMapper() {
@@ -108,7 +92,7 @@ public class MyConfig {
         return new MetricHandlerImpl();
     }
 
-    public class MetricHandlerImpl extends BlockingQueueRectifier<Metric> implements MetricHandler {
+    public static class MetricHandlerImpl extends BlockingQueueRectifier<Metric> implements MetricHandler {
 
         public MetricHandlerImpl() {
             super.outflow((list) -> {
@@ -128,36 +112,4 @@ public class MyConfig {
 
         // send to websocket
     }
-
-    @Bean
-    public TopicMappings<Realtime> topicMappings() {
-
-        Map<String, Class<? extends Realtime>> mappings = realtimeRegister.getMappings();
-
-        return new TopicMappings<Realtime>() {
-
-            @Override
-            public String[] topics() {
-                return mappings.keySet().stream().map(alias -> "storage_" + alias).toArray(String[]::new);
-            }
-
-            @Override
-            public String topic(Realtime realtime) {
-
-                for (String alias : mappings.keySet()) {
-                    if (realtime.getClass().equals(mappings.get(alias))) {
-                        return "storage_" + alias;
-                    }
-                }
-
-                return null;
-            }
-
-            @Override
-            public Class clazz(String topic) {
-                return mappings.get(topic.replaceFirst("storage_", ""));
-            }
-        };
-    }
-
 }

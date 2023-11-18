@@ -12,12 +12,22 @@ public class ThresholdValidateHandler implements MetricHandler {
 
     private ThresholdPolicyService policyService;
 
+    private List<AbnormalHandler> abnormalHandlers;
+
     public ThresholdPolicyService getPolicyService() {
         return policyService;
     }
 
     public void setPolicyService(ThresholdPolicyService policyService) {
         this.policyService = policyService;
+    }
+
+    public List<AbnormalHandler> getAbnormalHandlers() {
+        return abnormalHandlers;
+    }
+
+    public void setAbnormalHandlers(List<AbnormalHandler> abnormalHandlers) {
+        this.abnormalHandlers = abnormalHandlers;
     }
 
     @Override
@@ -37,13 +47,25 @@ public class ThresholdValidateHandler implements MetricHandler {
             List<ThresholdPolicy> policies = policyMappings.get(type);
 
             for (ThresholdPolicy policy : policies) {
-                if (policy.getThreshold().compareTo(metric.getValue()) < 0) {
-                    ThresholdAbnormal abnormal = createAbnormal(policy, metric);
-
-                    if (!policy.proceed()) {
+                if (policy.getMetricId().equals(metric.getMetricId()) && (metric.getValue().compareTo(policy.getThreshold()) * policy.getCompare() > 0)) {
+                    handleAbnormal(createAbnormal(policy, metric));
+                    if (!policy.getProceed()) {
                         break;
                     }
                 }
+            }
+        }
+    }
+
+    protected void handleAbnormal(ThresholdAbnormal abnormal) {
+
+        if (abnormalHandlers == null || abnormalHandlers.isEmpty()) {
+            return;
+        }
+
+        for (AbnormalHandler handler : abnormalHandlers) {
+            if (handler.isSupport(abnormal)) {
+                handler.handle(abnormal);
             }
         }
     }

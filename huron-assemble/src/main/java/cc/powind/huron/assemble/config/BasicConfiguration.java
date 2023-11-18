@@ -42,44 +42,4 @@ public class BasicConfiguration {
         objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
         return objectMapper;
     }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public RealtimeRegister realtimeRegister() {
-
-        return new RealtimeRegister() {
-
-            private final Map<String, Class<? extends Realtime>> map = new HashMap<>();
-
-            @Override
-            public void register(String alias, Class<? extends Realtime> clazz) {
-                map.put(alias, clazz);
-            }
-
-            @Override
-            public String getAlias(Class<? extends Realtime> clazz) {
-                for (String alias : map.keySet()) {
-                    if (clazz.equals(map.get(alias))) {
-                        return alias;
-                    }
-                }
-                return null;
-            }
-
-            @Override
-            public Class<? extends Realtime> getClazz(String alias) {
-                return map.get(alias);
-            }
-
-            @Override
-            public String[] getAlias() {
-                return map.keySet().toArray(new String[0]);
-            }
-
-            @Override
-            public Map<String, Class<? extends Realtime>> getMappings() {
-                return map;
-            }
-        };
-    }
 }

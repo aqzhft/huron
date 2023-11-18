@@ -1,0 +1,9 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+cc.powind.huron.assemble.config.BasicConfiguration,\
+cc.powind.huron.assemble.config.CollectConfiguration,\
+cc.powind.huron.assemble.config.MetricHandlerConfiguration,\
+cc.powind.huron.assemble.config.RealtimeFilterConfiguration,\
+cc.powind.huron.assemble.config.RealtimeRouterConfiguration,\
+cc.powind.huron.assemble.config.RealtimeStorageConfiguration,\
+cc.powind.huron.assemble.config.RealtimeValidatorConfiguration,\
+cc.powind.huron.assemble.config.RealtimeRouterConfiguration

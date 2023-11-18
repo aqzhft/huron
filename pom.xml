@@ -14,6 +14,7 @@
         <module>huron-assemble</module>
         <module>huron-extractor</module>
         <module>huron-rectifier</module>
+        <module>huron-clickhouse</module>
     </modules>
 
     <parent>
@@ -31,6 +32,7 @@
         <rabbit-amqp-client.version>5.13.1</rabbit-amqp-client.version>
         <rocketmq-client.version>4.9.4</rocketmq-client.version>
         <mqttv3.version>1.2.2</mqttv3.version>
+        <clickhouse-jdbc.version>0.3.2</clickhouse-jdbc.version>
     </properties>
 
     <dependencyManagement>
@@ -59,6 +61,11 @@
             <dependency>
                 <groupId>cc.powind</groupId>
                 <artifactId>huron-rectifier</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cc.powind</groupId>
+                <artifactId>huron-clickhouse</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -101,6 +108,11 @@
                 <groupId>org.eclipse.paho</groupId>
                 <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
                 <version>${mqttv3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.yandex.clickhouse</groupId>
+                <artifactId>clickhouse-jdbc</artifactId>
+                <version>${clickhouse-jdbc.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

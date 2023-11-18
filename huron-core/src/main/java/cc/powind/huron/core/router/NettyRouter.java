@@ -10,6 +10,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -71,6 +72,8 @@ public class NettyRouter {
 
         ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.group(new NioEventLoopGroup(), new NioEventLoopGroup());
+        // default keepAlive is true
+        // serverBootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
         serverBootstrap.channel(NioServerSocketChannel .class);
 
         serverBootstrap.childHandler(new ChannelInitializer<NioSocketChannel> () {
@@ -92,6 +95,11 @@ public class NettyRouter {
                     @Override
                     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
                         ctx.writeAndFlush(handleRequest(msg));
+                    }
+
+                    @Override
+                    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+                        System.out.println("channel closed");
                     }
                 });
             }
