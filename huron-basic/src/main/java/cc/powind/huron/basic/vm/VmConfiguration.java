@@ -2,11 +2,14 @@ package cc.powind.huron.basic.vm;
 
 import cc.powind.huron.basic.config.MetricRealtime;
 import cc.powind.huron.basic.config.UsageRealtime;
+import cc.powind.huron.clickhouse.MetricPersistenceMapper;
 import cc.powind.huron.core.collect.BaseThresholdPolicy;
 import cc.powind.huron.core.collect.ThresholdPolicy;
 import cc.powind.huron.core.collect.ThresholdPolicyService;
+import cc.powind.huron.core.model.BaseMetric;
 import cc.powind.huron.core.model.DefaultRealtimeRegister;
 import cc.powind.huron.core.model.RealtimeRegister;
+import cc.powind.huron.rectifier.BlockingQueueRectifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,6 +37,16 @@ public class VmConfiguration {
     @Bean
     public ThresholdAbnormalHandler thresholdAbnormalHandler(DataSource dataSource) {
         return new ThresholdAbnormalHandler(dataSource);
+    }
+
+    @Bean(initMethod = "init")
+    public MetricPersistenceMapper metricPersistenceMapper(DataSource dataSource) {
+        BlockingQueueRectifier<BaseMetric> rectifier = new BlockingQueueRectifier<>();
+        rectifier.setName("metricPersistenceMapperRectifier");
+        MetricPersistenceMapper mapper = new MetricPersistenceMapper();
+        mapper.setDataSource(dataSource);
+        mapper.setRectifier(rectifier);
+        return mapper;
     }
 
     @Bean
