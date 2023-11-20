@@ -32,7 +32,7 @@ public class CollectConfiguration {
     @Autowired(required = false)
     private List<RealtimeStorage> storages;
 
-    @Bean
+    @Bean(initMethod = "init")
     @ConditionalOnMissingBean(CollectService.class)
     public CollectService collectService() {
 

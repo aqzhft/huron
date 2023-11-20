@@ -1,6 +1,8 @@
 package cc.powind.huron.core.router;
 
+import cc.powind.huron.core.collect.CollectRecorder;
 import cc.powind.huron.core.collect.CollectService;
+import cc.powind.huron.core.collect.CollectServiceImpl;
 import cc.powind.huron.core.model.Realtime;
 import cc.powind.huron.core.model.RealtimeRegister;
 import cc.powind.huron.core.model.RealtimeWrapper;
@@ -10,7 +12,6 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -94,7 +95,7 @@ public class NettyRouter {
                 ch.pipeline().addLast(new SimpleChannelInboundHandler<FullHttpRequest>() {
                     @Override
                     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-                        ctx.writeAndFlush(handleRequest(msg));
+                        ctx.writeAndFlush(handleRequest(ctx, msg));
                     }
 
                     @Override
@@ -107,8 +108,43 @@ public class NettyRouter {
         serverBootstrap.bind(port);
     }
 
-    protected HttpResponse handleRequest(FullHttpRequest request) throws Exception {
+    protected HttpResponse handleRequest(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
 
+        HttpMethod method = request.method();
+        if ("post".equalsIgnoreCase(method.name())) {
+            return postHandleRequest(request);
+        } else {
+            return getHandleRequest(ctx, request);
+        }
+    }
+
+    private HttpResponse getHandleRequest(ChannelHandlerContext ctx, FullHttpRequest request) {
+        try {
+
+            String uri = request.uri();
+
+            if (uri.startsWith("/record")) {
+
+                if (collectService instanceof CollectServiceImpl) {
+                    CollectRecorder collectRecorder = ((CollectServiceImpl) collectService).getCollectRecorder();
+                    byte[] bytes = mapper.writeValueAsBytes(collectRecorder);
+                    ByteBuf buffer = ctx.alloc().buffer();
+                    buffer.writeBytes(bytes);
+                    return RESPONSE_CONTEXT.OK.response(request.protocolVersion(), buffer);
+                }
+
+            } else if (uri.startsWith("/metric")) {
+
+            }
+
+            return RESPONSE_CONTEXT.OK.response(request.protocolVersion());
+        } catch (Exception e) {
+            log.error(e);
+            return RESPONSE_CONTEXT.INTERNAL_SERVER_ERROR.response(request.protocolVersion());
+        }
+    }
+
+    private HttpResponse postHandleRequest(FullHttpRequest request) {
         try {
             ByteBuf content = request.content();
 
@@ -157,6 +193,12 @@ public class NettyRouter {
         public HttpResponse response(HttpVersion httpVersion) {
             DefaultFullHttpResponse response = new DefaultFullHttpResponse(httpVersion, HttpResponseStatus.OK);
             response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, 0);
+            return response;
+        }
+
+        public HttpResponse response(HttpVersion httpVersion, ByteBuf byteBuf) {
+            DefaultFullHttpResponse response = new DefaultFullHttpResponse(httpVersion, HttpResponseStatus.OK, byteBuf);
+            response.headers().setInt(HttpHeaderNames.CONTENT_LENGTH, byteBuf.readableBytes());
             return response;
         }
     }
