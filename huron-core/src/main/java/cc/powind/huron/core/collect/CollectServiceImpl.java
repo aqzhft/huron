@@ -1,6 +1,5 @@
 package cc.powind.huron.core.collect;
 
-import cc.powind.huron.core.exception.RealtimeExistException;
 import cc.powind.huron.core.exception.RealtimeValidateException;
 import cc.powind.huron.core.model.*;
 import cc.powind.huron.core.storage.RealtimeStorage;
@@ -9,14 +8,16 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class CollectServiceImpl implements CollectService {
 
     protected final Log log = LogFactory.getLog(getClass());
 
-    private final RealtimeStat realtimeStat = new RealtimeStat();
+    private CollectRecorder collectRecorder = new CollectRecorder();
 
     private List<RealtimeFilter> filters;
 
@@ -27,6 +28,16 @@ public class CollectServiceImpl implements CollectService {
     private List<MetricHandler> metricHandlers;
 
     private List<RealtimeStorage> storages;
+
+    private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+
+    public CollectRecorder getCollectRecorder() {
+        return collectRecorder;
+    }
+
+    public void setCollectRecorder(CollectRecorder collectRecorder) {
+        this.collectRecorder = collectRecorder;
+    }
 
     public List<RealtimeFilter> getFilters() {
         return filters;
@@ -68,6 +79,10 @@ public class CollectServiceImpl implements CollectService {
         this.storages = storages;
     }
 
+    public void init() {
+        initRecorderCalc();
+    }
+
     @Override
     public void collect(Realtime realtime) {
 
@@ -81,34 +96,10 @@ public class CollectServiceImpl implements CollectService {
 
             store(realtime);
 
-        } catch (RealtimeValidateException ve) {
-
-            // 错误处理
-            long invalidCount = realtimeStat.invalidCount.incrementAndGet();
-
-            if (invalidCount % 2 == 0) {
-                log.error("invalid realtime: " + String.join(",", ve.getErrTexts()) + ", entity: " + ve.getRealtime());
-            }
-
-
-        } catch (RealtimeExistException ee) {
-
-            //
-            realtimeStat.existCount.incrementAndGet();
-
-
-        } catch (Exception e) {
-
-            // xx
-            e.printStackTrace();
-
-
+        } catch (RealtimeException re) {
+            collectRecorder.isError(re);
         } finally {
-            long total = realtimeStat.total.incrementAndGet();
-
-            if (total % 100 == 0) {
-                log.info("summary [ total: " + total + ", invalid: " + realtimeStat.invalidCount + ", exist: " + realtimeStat.existCount + " ]");
-            }
+            collectRecorder.success();
         }
     }
 
@@ -145,6 +136,9 @@ public class CollectServiceImpl implements CollectService {
         // detect metrics from realtime
         Collection<Metric> metrics = detect(realtime);
 
+        // count
+        collectRecorder.metrics(metrics.size());
+
         // custom processing logic
         metricHandle(metrics);
     }
@@ -180,24 +174,9 @@ public class CollectServiceImpl implements CollectService {
         storages.forEach(storage -> storage.store(realtime));
     }
 
-    public static class RealtimeStat {
-
-        private final AtomicLong total = new AtomicLong(0);
-
-        private final AtomicLong invalidCount = new AtomicLong(0);
-
-        private final AtomicLong existCount = new AtomicLong(0);
-
-        public AtomicLong getTotal() {
-            return total;
-        }
-
-        public AtomicLong getInvalidCount() {
-            return invalidCount;
-        }
-
-        public AtomicLong getExistCount() {
-            return existCount;
-        }
+    protected void initRecorderCalc() {
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            compute(collectRecorder.realtime());
+        }, 10, 1, TimeUnit.SECONDS);
     }
 }
