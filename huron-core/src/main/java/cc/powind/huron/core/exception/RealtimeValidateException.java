@@ -5,18 +5,10 @@ import cc.powind.huron.core.model.RealtimeException;
 
 public class RealtimeValidateException extends RealtimeException {
 
-    /**
-     * err message
-     */
+
     private String[] errTexts;
 
-    public RealtimeValidateException(Realtime realtime, String errText) {
-        super(realtime);
-        this.errTexts = new String[]{errText};
-    }
-
-    public RealtimeValidateException(Realtime realtime, String[] errTexts) {
-        super(realtime);
+    public RealtimeValidateException(String[] errTexts) {
         this.errTexts = errTexts;
     }
 

@@ -1,5 +1,7 @@
 package cc.powind.huron.core.model;
 
+import cc.powind.huron.core.exception.RealtimeExistException;
+
 public interface RealtimeFilter {
 
     /**
@@ -7,5 +9,5 @@ public interface RealtimeFilter {
      *
      * @param realtime Real-time
      */
-    void exist(Realtime realtime) throws RealtimeException;
+    void exist(Realtime realtime) throws RealtimeExistException;
 }

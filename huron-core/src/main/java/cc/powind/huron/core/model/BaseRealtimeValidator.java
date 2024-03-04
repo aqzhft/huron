@@ -2,26 +2,33 @@ package cc.powind.huron.core.model;
 
 import cc.powind.huron.core.exception.RealtimeValidateException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BaseRealtimeValidator implements RealtimeValidator {
 
     @Override
-    public void validate(Realtime realtime) throws RealtimeValidateException {
+    public RealtimeError validate(Realtime realtime) {
 
         if (realtime == null) {
-            throw new RealtimeValidateException(null, "realtime data is null");
+            return new RealtimeError(null, "realtime data is null");
         }
 
+        List<RealtimeError.Error> errors = new ArrayList<>();
+
         if (realtime.getTime() == null) {
-            throw new RealtimeValidateException(realtime, "time is null");
+            errors.add(new RealtimeError.Error("time", "time is null"));
         }
 
         if (realtime.getRealtimeId() == null || "".equals(realtime.getRealtimeId())) {
-            throw new RealtimeValidateException(realtime, "realtime unique id is null");
+            errors.add(new RealtimeError.Error("realtimeId", "realtime unique id is null"));
         }
 
         if (realtime.getObjectId() == null || "".equals(realtime.getObjectId())) {
-            throw new RealtimeValidateException(realtime, "realtime object id is null");
+            errors.add(new RealtimeError.Error("objectId", "realtime object id is null"));
         }
+
+        return new RealtimeError(realtime, errors);
     }
 
     @Override

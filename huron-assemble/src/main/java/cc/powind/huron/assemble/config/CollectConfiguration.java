@@ -29,8 +29,8 @@ public class CollectConfiguration {
     @Autowired(required = false)
     private List<MetricHandler> metricHandlers;
 
-    @Autowired(required = false)
-    private List<RealtimeStorage> storages;
+    @Autowired
+    private RealtimeStorage storage;
 
     @Bean(initMethod = "init")
     @ConditionalOnMissingBean(CollectService.class)
@@ -46,7 +46,7 @@ public class CollectConfiguration {
 
         impl.setMetricHandlers(metricHandlers);
 
-        impl.setStorages(storages);
+        impl.setStorage(storage);
 
         return impl;
     }

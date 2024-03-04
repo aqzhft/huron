@@ -1,5 +1,6 @@
 package cc.powind.huron.core.storage;
 
+import cc.powind.huron.core.exception.RealtimeStoreException;
 import cc.powind.huron.core.model.Realtime;
 import cc.powind.huron.core.model.RealtimeMapper;
 import cc.powind.huron.rectifier.Rectifier;
@@ -7,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DefaultRealtimeStorage implements RealtimeStorage {
 
@@ -34,8 +36,23 @@ public class DefaultRealtimeStorage implements RealtimeStorage {
     }
 
     @Override
-    public void store(Realtime realtime) {
-        rectifier.inflow(realtime);
+    public void store(Realtime realtime) throws RealtimeStoreException {
+        try {
+            rectifier.inflow(realtime);
+        } catch (Exception e) {
+            throw new RealtimeStoreException(realtime);
+        }
+    }
+
+    @Override
+    public <T extends Realtime> void store(List<T> realtimeList) throws RealtimeStoreException {
+        List<Realtime> list = realtimeList.stream().map(realtime -> (Realtime) realtime)
+                .collect(Collectors.toList());
+        try {
+            rectifier.inflow(list);
+        } catch (Exception e) {
+            throw new RealtimeStoreException(list);
+        }
     }
 
     /**

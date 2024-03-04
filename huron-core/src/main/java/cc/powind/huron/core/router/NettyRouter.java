@@ -4,6 +4,7 @@ import cc.powind.huron.core.collect.CollectRecorder;
 import cc.powind.huron.core.collect.CollectService;
 import cc.powind.huron.core.collect.CollectServiceImpl;
 import cc.powind.huron.core.model.Realtime;
+import cc.powind.huron.core.model.RealtimeException;
 import cc.powind.huron.core.model.RealtimeRegister;
 import cc.powind.huron.core.model.RealtimeWrapper;
 import com.fasterxml.jackson.databind.JavaType;
@@ -167,8 +168,11 @@ public class NettyRouter {
             JavaType javaType = mapper.getTypeFactory().constructParametricType(RealtimeWrapper.class, register.getClazz(map.get("alias")));
             RealtimeWrapper<Realtime> wrapper = mapper.readValue(bytes, javaType);
 
-            // convert realtime
-            wrapper.getRealtimeList().forEach(realtime -> collectService.collect(realtime));
+            try {
+                collectService.collect(wrapper);
+            } catch (RealtimeException e) {
+                return RESPONSE_CONTEXT.BAD_REQUEST.response(request.protocolVersion());
+            }
             return RESPONSE_CONTEXT.OK.response(request.protocolVersion());
         } catch (Exception e) {
             log.error(e);

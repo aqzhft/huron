@@ -4,7 +4,7 @@ import cc.powind.huron.core.exception.RealtimeValidateException;
 
 public interface RealtimeValidator {
 
-    void validate(Realtime realtime) throws RealtimeValidateException;
+    RealtimeError validate(Realtime realtime);
 
     boolean isSupport(Realtime realtime);
 }

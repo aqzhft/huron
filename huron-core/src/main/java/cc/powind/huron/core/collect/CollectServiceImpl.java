@@ -1,16 +1,18 @@
 package cc.powind.huron.core.collect;
 
+import cc.powind.huron.core.exception.RealtimeExistException;
+import cc.powind.huron.core.exception.RealtimeStoreException;
 import cc.powind.huron.core.exception.RealtimeValidateException;
 import cc.powind.huron.core.model.*;
 import cc.powind.huron.core.storage.RealtimeStorage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class CollectServiceImpl implements CollectService {
@@ -27,7 +29,7 @@ public class CollectServiceImpl implements CollectService {
 
     private List<MetricHandler> metricHandlers;
 
-    private List<RealtimeStorage> storages;
+    private RealtimeStorage storage;
 
     private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
@@ -71,12 +73,12 @@ public class CollectServiceImpl implements CollectService {
         this.metricHandlers = metricHandlers;
     }
 
-    public List<RealtimeStorage> getStorages() {
-        return storages;
+    public RealtimeStorage getStorage() {
+        return storage;
     }
 
-    public void setStorages(List<RealtimeStorage> storages) {
-        this.storages = storages;
+    public void setStorage(RealtimeStorage storage) {
+        this.storage = storage;
     }
 
     public void init() {
@@ -84,39 +86,60 @@ public class CollectServiceImpl implements CollectService {
     }
 
     @Override
-    public void collect(Realtime realtime) {
+    public void collect(Realtime realtime) throws RealtimeException {
 
-        try {
-
-            validate(realtime);
-
-            filter(realtime);
-
-            compute(realtime);
-
-            store(realtime);
-
-        } catch (RealtimeException re) {
-            collectRecorder.isError(re);
-        } finally {
-            collectRecorder.success();
+        RealtimeError realtimeError = validate(realtime);
+        if (!realtimeError.errorIsEmpty()) {
+            throw new RealtimeValidateException(realtimeError.getErrorDescription().toArray(new String[0]));
         }
+
+        determineIfExisted(realtime);
+
+        store(realtime);
+
+        compute(realtime);
     }
 
-    protected void validate(Realtime realtime) throws RealtimeValidateException {
+    @Override
+    public <T extends Realtime> void collect(RealtimeWrapper<T> wrapper) throws RealtimeException {
+
+        List<T> realtimeList = wrapper.getRealtimeList();
+
+        List<RealtimeError> errorList = realtimeList.stream().map(this::validate)
+                .filter(error -> !error.errorIsEmpty())
+                .collect(Collectors.toList());
+
+        if (!errorList.isEmpty()) {
+            String[] errorTexts = errorList.stream().map(RealtimeError::getErrorDescription)
+                    .flatMap(Collection::stream)
+                    .toArray(String[]::new);
+            throw new RealtimeValidateException(errorTexts);
+        }
+
+        List<T> remainedList = notExisted(realtimeList);
+
+        remainedList.sort(Comparator.comparing(Realtime::getTime));
+
+        store(remainedList);
+
+        compute(remainedList);
+    }
+
+    protected RealtimeError validate(Realtime realtime) {
 
         if (validators == null || validators.isEmpty()) {
-            return;
+            return null;
         }
 
-        for (RealtimeValidator validator : validators) {
-            if (validator.isSupport(realtime)) {
-                validator.validate(realtime);
-            }
-        }
+        List<RealtimeError.Error> errorList = validators.stream().filter(validator -> validator.isSupport(realtime))
+                .map(validator -> validator.validate(realtime).getErrors())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        return new RealtimeError(realtime, errorList);
     }
 
-    protected void filter(Realtime realtime) throws RealtimeException {
+    protected void determineIfExisted(Realtime realtime) throws RealtimeExistException {
 
         if (filters == null || filters.isEmpty()) {
             return;
@@ -127,14 +150,49 @@ public class CollectServiceImpl implements CollectService {
         }
     }
 
+    protected <T extends Realtime> List<T> notExisted(List<T> realtimeList) {
+
+        if (filters == null || filters.isEmpty()) {
+            return realtimeList;
+        }
+
+        return realtimeList.stream().filter(realtime -> {
+            for (RealtimeFilter filter : filters) {
+                try {
+                    filter.exist(realtime);
+                } catch (RealtimeExistException e) {
+                    return false;
+                }
+            }
+            return true;
+        }).collect(Collectors.toList());
+    }
+
     protected void compute(Realtime realtime) {
 
         if (detectors == null || detectors.isEmpty()) {
             return;
         }
 
-        // detect metrics from realtime
+        // Detect metrics from realtime
         Collection<Metric> metrics = detect(realtime);
+
+        // count
+        collectRecorder.metrics(metrics.size());
+
+        // Custom processing logic
+        metricHandle(metrics);
+    }
+
+    protected <T extends Realtime> void compute(List<T> realtimeList) {
+
+        if (detectors == null || detectors.isEmpty()) {
+            return;
+        }
+
+        List<Metric> metrics = realtimeList.stream().map(this::detect)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
 
         // count
         collectRecorder.metrics(metrics.size());
@@ -165,13 +223,12 @@ public class CollectServiceImpl implements CollectService {
         }
     }
 
-    public void store(Realtime realtime) {
+    protected void store(Realtime realtime) throws RealtimeStoreException {
+        storage.store(realtime);
+    }
 
-        if (storages == null || storages.isEmpty()) {
-            return;
-        }
-
-        storages.forEach(storage -> storage.store(realtime));
+    protected <T extends Realtime> void store(List<T> realtimeList) throws RealtimeStoreException {
+        storage.store(realtimeList);
     }
 
     protected void initRecorderCalc() {
