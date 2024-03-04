@@ -7,17 +7,9 @@ package cc.powind.huron.core.model;
  */
 public class RealtimeException extends Exception {
 
-    private Realtime realtime;
+    public RealtimeException() {}
 
-    public Realtime getRealtime() {
-        return realtime;
-    }
-
-    public void setRealtime(Realtime realtime) {
-        this.realtime = realtime;
-    }
-
-    public RealtimeException(Realtime realtime) {
-        this.realtime = realtime;
+    public RealtimeException(String message) {
+        super(message);
     }
 }
