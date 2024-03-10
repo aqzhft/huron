@@ -2,6 +2,7 @@ package cc.powind.huron.assemble.config;
 
 import cc.powind.huron.core.collect.CollectService;
 import cc.powind.huron.core.collect.CollectServiceImpl;
+import cc.powind.huron.core.collect.ExtractorRecorder;
 import cc.powind.huron.core.model.MetricDetector;
 import cc.powind.huron.core.model.MetricHandler;
 import cc.powind.huron.core.model.RealtimeFilter;
@@ -32,6 +33,9 @@ public class CollectConfiguration {
     @Autowired
     private RealtimeStorage storage;
 
+    @Autowired
+    private ExtractorRecorder extractorRecorder;
+
     @Bean(initMethod = "init")
     @ConditionalOnMissingBean(CollectService.class)
     public CollectService collectService() {
@@ -47,6 +51,8 @@ public class CollectConfiguration {
         impl.setMetricHandlers(metricHandlers);
 
         impl.setStorage(storage);
+
+        impl.setExtractorRecorder(extractorRecorder);
 
         return impl;
     }

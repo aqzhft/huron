@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.2</version>
+        <version>2.7.18</version>
     </parent>
 
     <properties>
@@ -32,7 +32,7 @@
         <rabbit-amqp-client.version>5.13.1</rabbit-amqp-client.version>
         <rocketmq-client.version>4.9.4</rocketmq-client.version>
         <mqttv3.version>1.2.2</mqttv3.version>
-        <clickhouse-jdbc.version>0.3.2</clickhouse-jdbc.version>
+        <clickhouse-jdbc.version>0.6.0</clickhouse-jdbc.version>
     </properties>
 
     <dependencyManagement>
@@ -110,7 +110,7 @@
                 <version>${mqttv3.version}</version>
             </dependency>
             <dependency>
-                <groupId>ru.yandex.clickhouse</groupId>
+                <groupId>com.clickhouse</groupId>
                 <artifactId>clickhouse-jdbc</artifactId>
                 <version>${clickhouse-jdbc.version}</version>
             </dependency>

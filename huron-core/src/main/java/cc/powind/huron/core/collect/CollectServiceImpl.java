@@ -5,6 +5,7 @@ import cc.powind.huron.core.exception.RealtimeStoreException;
 import cc.powind.huron.core.exception.RealtimeValidateException;
 import cc.powind.huron.core.model.*;
 import cc.powind.huron.core.storage.RealtimeStorage;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,6 +31,8 @@ public class CollectServiceImpl implements CollectService {
     private List<MetricHandler> metricHandlers;
 
     private RealtimeStorage storage;
+
+    private ExtractorRecorder extractorRecorder;
 
     private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
 
@@ -81,6 +84,14 @@ public class CollectServiceImpl implements CollectService {
         this.storage = storage;
     }
 
+    public ExtractorRecorder getExtractorRecorder() {
+        return extractorRecorder;
+    }
+
+    public void setExtractorRecorder(ExtractorRecorder extractorRecorder) {
+        this.extractorRecorder = extractorRecorder;
+    }
+
     public void init() {
         initRecorderCalc();
     }
@@ -101,7 +112,12 @@ public class CollectServiceImpl implements CollectService {
     }
 
     @Override
-    public <T extends Realtime> void collect(RealtimeWrapper<T> wrapper) throws RealtimeException {
+    public <T extends Realtime> void collect(RealtimeWrapper<T> wrapper, String realtimeAlias) throws RealtimeException {
+
+        // Validate wrapper
+        validateWrapper(wrapper);
+
+        extractorRecorder.record(wrapper, realtimeAlias);
 
         List<T> realtimeList = wrapper.getRealtimeList();
 
@@ -123,6 +139,23 @@ public class CollectServiceImpl implements CollectService {
         store(remainedList);
 
         compute(remainedList);
+    }
+
+    protected <T extends Realtime> void validateWrapper(RealtimeWrapper<T> wrapper) throws RealtimeValidateException {
+
+        List<String> errors = new ArrayList<>();
+
+        if (StringUtils.isBlank(wrapper.getExtractorId())) {
+            errors.add("extractor's id is null");
+        }
+
+        if (StringUtils.isBlank(wrapper.getExtractorName())) {
+            errors.add("extractor's name is null");
+        }
+
+        if (!errors.isEmpty()) {
+            throw new RealtimeValidateException(errors.toArray(new String[0]));
+        }
     }
 
     protected RealtimeError validate(Realtime realtime) {

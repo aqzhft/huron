@@ -26,5 +26,5 @@ public interface CollectService {
      */
     void collect(Realtime realtime) throws RealtimeException;
 
-    <T extends Realtime> void collect(RealtimeWrapper<T> wrapper) throws RealtimeException;
+    <T extends Realtime> void collect(RealtimeWrapper<T> wrapper, String realtimeAlias) throws RealtimeException;
 }
