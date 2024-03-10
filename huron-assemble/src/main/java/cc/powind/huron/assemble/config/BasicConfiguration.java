@@ -1,9 +1,9 @@
 package cc.powind.huron.assemble.config;
 
 import cc.powind.huron.core.collect.CollectRecorderDetector;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import cc.powind.huron.core.collect.ExtractorRecorder;
+import cc.powind.huron.core.collect.ExtractorRecorderImpl;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -43,5 +43,10 @@ public class BasicConfiguration {
     @Bean
     public CollectRecorderDetector collectRecorderDetector() {
         return new CollectRecorderDetector();
+    }
+
+    @Bean
+    public ExtractorRecorder extractorRecorder() {
+        return new ExtractorRecorderImpl();
     }
 }

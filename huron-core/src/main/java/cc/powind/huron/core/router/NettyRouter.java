@@ -20,9 +20,12 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -111,9 +114,12 @@ public class NettyRouter {
 
     protected HttpResponse handleRequest(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
 
+        SocketAddress socketAddress = ctx.channel().remoteAddress();
+        InetSocketAddress address = (InetSocketAddress) socketAddress;
+
         HttpMethod method = request.method();
         if ("post".equalsIgnoreCase(method.name())) {
-            return postHandleRequest(request);
+            return postHandleRequest(request, address.getAddress().getHostAddress());
         } else {
             return getHandleRequest(ctx, request);
         }
@@ -145,31 +151,25 @@ public class NettyRouter {
         }
     }
 
-    private HttpResponse postHandleRequest(FullHttpRequest request) {
+    private HttpResponse postHandleRequest(FullHttpRequest request, String ipAddress) {
         try {
             ByteBuf content = request.content();
-
-            String uri = request.uri();
-
-            String substring = uri.substring(uri.indexOf("?") + 1);
-
-            String[] splits = substring.split("&");
-
-            Map<String, String> map = new HashMap<>();
-            for (String split: splits) {
-                String[] target = split.split("=");
-                map.put(target[0], target[1]);
+            String realtimeAlias = getRealtimeAlias(request.uri());
+            if (StringUtils.isBlank(realtimeAlias)) {
+                return RESPONSE_CONTEXT.BAD_REQUEST.response(request.protocolVersion());
             }
 
             byte[] bytes = new byte[content.capacity()];
 
             content.readBytes(bytes);
 
-            JavaType javaType = mapper.getTypeFactory().constructParametricType(RealtimeWrapper.class, register.getClazz(map.get("alias")));
+            JavaType javaType = mapper.getTypeFactory().constructParametricType(RealtimeWrapper.class, register.getClazz(realtimeAlias));
             RealtimeWrapper<Realtime> wrapper = mapper.readValue(bytes, javaType);
 
+            wrapper.setIpAddress(ipAddress);
+
             try {
-                collectService.collect(wrapper);
+                collectService.collect(wrapper, realtimeAlias);
             } catch (RealtimeException e) {
                 return RESPONSE_CONTEXT.BAD_REQUEST.response(request.protocolVersion());
             }
@@ -178,6 +178,22 @@ public class NettyRouter {
             log.error(e);
             return RESPONSE_CONTEXT.INTERNAL_SERVER_ERROR.response(request.protocolVersion());
         }
+    }
+
+    private String getRealtimeAlias(String uri) {
+
+        String substring = uri.substring(uri.indexOf("?") + 1);
+
+        String[] splits = substring.split("&");
+
+        for (String split: splits) {
+            String[] target = split.split("=");
+            if ("alias".equalsIgnoreCase(target[0])) {
+                return target[1];
+            }
+        }
+
+        return null;
     }
 
     enum RESPONSE_CONTEXT {

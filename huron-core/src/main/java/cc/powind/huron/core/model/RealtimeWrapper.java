@@ -6,6 +6,10 @@ public class RealtimeWrapper <T> {
 
     private String extractorId;
 
+    private String extractorName;
+
+    private String ipAddress;
+
     private List<T> realtimeList;
 
     public String getExtractorId() {
@@ -14,6 +18,22 @@ public class RealtimeWrapper <T> {
 
     public void setExtractorId(String extractorId) {
         this.extractorId = extractorId;
+    }
+
+    public String getExtractorName() {
+        return extractorName;
+    }
+
+    public void setExtractorName(String extractorName) {
+        this.extractorName = extractorName;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
     public List<T> getRealtimeList() {

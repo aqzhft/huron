@@ -21,10 +21,10 @@
             <groupId>cc.powind</groupId>
             <artifactId>huron-assemble</artifactId>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>cc.powind</groupId>
             <artifactId>huron-clickhouse</artifactId>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
     <build>

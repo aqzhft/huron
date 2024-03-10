@@ -2,14 +2,12 @@ package cc.powind.huron.basic.vm;
 
 import cc.powind.huron.basic.config.MetricRealtime;
 import cc.powind.huron.basic.config.UsageRealtime;
-import cc.powind.huron.clickhouse.MetricPersistenceMapper;
 import cc.powind.huron.core.collect.BaseThresholdPolicy;
 import cc.powind.huron.core.collect.ThresholdPolicy;
 import cc.powind.huron.core.collect.ThresholdPolicyService;
-import cc.powind.huron.core.model.BaseMetric;
 import cc.powind.huron.core.model.DefaultRealtimeRegister;
 import cc.powind.huron.core.model.RealtimeRegister;
-import cc.powind.huron.rectifier.BlockingQueueRectifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -25,6 +23,7 @@ public class VmConfiguration {
     // CREATE TABLE IF NOT EXISTS abnormal_threshold (policy_id String, policy_name String, metric_id String, metric_name String, value Float64, threshold Float64, source_id String, time Datetime) ENGINE = MergeTree() PARTITION BY toYYYYMM(time) ORDER BY (policy_id, time);
 
     @Bean
+    @ConditionalOnBean(DataSource.class)
     public CpuMemoryMapper cpuMemoryMapper(DataSource dataSource) {
         return new CpuMemoryMapper(dataSource);
     }
@@ -35,11 +34,12 @@ public class VmConfiguration {
     }
 
     @Bean
+    @ConditionalOnBean(DataSource.class)
     public ThresholdAbnormalHandler thresholdAbnormalHandler(DataSource dataSource) {
         return new ThresholdAbnormalHandler(dataSource);
     }
 
-    @Bean(initMethod = "init")
+    /*@Bean(initMethod = "init")
     public MetricPersistenceMapper metricPersistenceMapper(DataSource dataSource) {
         BlockingQueueRectifier<BaseMetric> rectifier = new BlockingQueueRectifier<>();
         rectifier.setName("metricPersistenceMapperRectifier");
@@ -47,7 +47,7 @@ public class VmConfiguration {
         mapper.setDataSource(dataSource);
         mapper.setRectifier(rectifier);
         return mapper;
-    }
+    }*/
 
     @Bean
     public RealtimeRegister realtimeRegister() {
